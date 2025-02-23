@@ -12,9 +12,11 @@ user_last_contact_time = {}
 # Время ожидания между обращениями (в секундах)
 TIME_LIMIT = 30 * 60  # 30 минут
 
+
 # Функция для старта диалога
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Добро пожаловать в техподдержку! Пожалуйста, напишите ваше сообщение.')
+
 
 # Получение сообщения от пользователя и отправка в техподдержку
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -30,16 +32,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Если запись есть и время с последнего обращения меньше 30 минут
     if last_contact_time and (current_time - last_contact_time < TIME_LIMIT):
         remaining_time = TIME_LIMIT - (current_time - last_contact_time)
-        await update.message.reply_text(f'Вы не можете обращаться в поддержку так часто. Пожалуйста, подождите еще {int(remaining_time // 60)} минут и {int(remaining_time % 60)} секунд.')
+        await update.message.reply_text(
+            f'Вы не можете обращаться в поддержку так часто. Пожалуйста, подождите еще {int(remaining_time // 60)} минут и {int(remaining_time % 60)} секунд.')
         return
 
     # Отправка сообщения в техподдержку
-    await context.bot.send_message(chat_id=SUPPORT_CHAT_ID, text=f"Сообщение от @{user_name} (ID: {user_id}):\n{user_message}")
+    await context.bot.send_message(chat_id=SUPPORT_CHAT_ID,
+                                   text=f"Сообщение от @{user_name} (ID: {user_id}):\n{user_message}")
 
     # Обновляем время последнего обращения пользователя
     user_last_contact_time[user_id] = current_time
-    
+
     await update.message.reply_text("Ваше сообщение отправлено в техподдержку. Мы свяжемся с вами скоро.")
+
 
 def main() -> None:
     app = ApplicationBuilder().token(SUPPORT_BOT_TOKEN).build()
@@ -50,6 +55,7 @@ def main() -> None:
 
     # Запуск бота
     app.run_polling()
+
 
 if __name__ == '__main__':
     main()

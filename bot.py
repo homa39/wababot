@@ -22,12 +22,12 @@ def get_numbers():
 # Команда старт
 @bot.message_handler(commands=['start'])
 def start(message):
-    text = "Добро пожаловать! Используйте /list для просмотра доступных номеров. \n Обратиться в поддержку: @wababot_support_bot"
+    text = "<b>Добро пожаловать!</b> \n\n|\n|\n|\nИспользуйте /list для просмотра доступных номеров. \n\n Обратиться в поддержку: @wababot_support_bot"
     image_path = 'img_start.png'  # Замените на путь к вашему изображению
 
     # Отправка изображения
     with open(image_path, 'rb') as photo:
-        bot.send_photo(message.chat.id, photo, caption=text)
+        bot.send_photo(message.chat.id, photo, caption=text, parse_mode='HTML')
 
 # Команда для отображения списка номеров
 @bot.message_handler(commands=['list'])
