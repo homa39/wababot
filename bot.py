@@ -2,6 +2,7 @@ import logging
 import sqlite3
 import telebot
 from telebot import types
+import time
 
 # Настройка логирования
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -10,7 +11,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 API_TOKEN = '7850122012:AAErxkP9TiQnqmSMQd-Ny4tk-aCf8GthijE'  # Ваш реальный токен
 CHAT_ID = '7369376817'  # Ваш реальный ID чата
 bot = telebot.TeleBot(API_TOKEN)
-
+user_data = {}
 # Функция для получения номеров из базы данных
 def get_numbers():
     conn = sqlite3.connect('whatsapp_numbers.db')
@@ -20,17 +21,32 @@ def get_numbers():
     conn.close()
     return numbers
 
-# Команда старт
 @bot.message_handler(commands=['start'])
 def start(message):
-    text = "<b>💻Добро пожаловать!</b>\n\nВыберите действие:\n\n" \
-           "<i>Используйте кнопки ниже для навигации.</i> \n\n <i>Аренда номеров уже стала проще благодаря Waba, не теряйте драгоценное время ради лишения своих профитов.</i>\n\n <b>Обратиться в Тех.Поддержку - @wababot_support_bot</b>"
+    text = (
+        "<b>💻Добро пожаловать!</b>\n\n"
+        "Выберите действие:\n\n"
+        "<i>Используйте кнопки ниже для навигации.</i> \n\n"
+        "<i>Аренда номеров уже стала проще благодаря Waba, не теряйте драгоценное время ради лишения своих профитов.</i>\n\n"
+    )
 
+    # Создаем инлайн клавиатуру
+    inline_keyboard = types.InlineKeyboardMarkup()
+    support_button = types.InlineKeyboardButton(text="Тех. Поддержка", url="https://t.me/wababot_support_bot")
+    inline_keyboard.add(support_button)
+
+    # Создаем обычную клавиатуру
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     button_list = types.KeyboardButton("/list")
     keyboard.add(button_list)
 
-    bot.send_message(message.chat.id, text, reply_markup=keyboard, parse_mode='HTML')
+    # Путь к изображению
+    photo_path = 'Main_Png.png'  # Укажите путь к вашему изображению
+
+    # Отправка изображения с текстом и инлайн кнопкой
+    with open(photo_path, 'rb') as photo:
+        bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text, parse_mode='HTML', reply_markup=inline_keyboard)
+
 
 # Команда для отображения списка номеров
 @bot.message_handler(commands=['list'])
@@ -59,8 +75,21 @@ def list_numbers(message):
 def button(call):
     if call.data.startswith("rent_"):
         phone_number = call.data.split("_")[1]
-        text = f"Вы арендовали номер: {phone_number}\n\nПожалуйста, отправьте скриншот квитанции о платеже."
-        bot.send_message(call.message.chat.id, text)
+        text = (
+            "♻️ <b>Оплата банковской картой:</b>\n\n"
+            "<i>Ваша заявка зарегистрирована</i>\n\n"
+            "Реквизиты для оплаты банковской картой:\n"
+            "└ <code>2200701753418570</code>\n\n\n"
+            "Пожалуйста, отправьте скриншот квитанции о платеже."
+        )
+
+        # Путь к изображению
+        photo_path = 'img_confirmation.png'  # Укажите путь к вашему изображению
+
+        # Отправляем изображение с текстом
+        with open(photo_path, 'rb') as photo:
+            bot.send_photo(call.message.chat.id, photo, caption=text, parse_mode='HTML')
+
         bot.answer_callback_query(call.id)
 
         # Устанавливаем состояние ожидания скриншота
@@ -69,7 +98,9 @@ def button(call):
     elif call.data == "back_to_menu":
         start(call.message)
 
-# Обработка скриншота квитанции
+
+
+ # Обработка скриншота квитанции
 def handle_payment_confirmation(message):
     if message.content_type == 'photo':
         # Отправляем скриншот вам для проверки
@@ -78,6 +109,7 @@ def handle_payment_confirmation(message):
         bot.send_message(message.chat.id, "Спасибо! Ваша квитанция принята. Ожидайте подтверждения.")
     else:
         bot.send_message(message.chat.id, "Пожалуйста, отправьте только скриншот квитанции о платеже.")
+
 
 # Обработка неизвестных команд
 @bot.message_handler(func=lambda message: True)
