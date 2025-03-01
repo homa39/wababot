@@ -24,7 +24,7 @@ def get_numbers():
 @bot.message_handler(commands=['start'])
 def start(message):
     text = (
-        "<b>💻Добро пожаловать!</b>\n\n"
+        "<b>💻 Добро пожаловать!</b>\n\n"
         "Выберите действие:\n\n"
         "<i>Используйте кнопки ниже для навигации.</i> \n\n"
         "<i>Аренда номеров уже стала проще благодаря Waba, не теряйте драгоценное время ради лишения своих профитов.</i>\n\n"
@@ -47,7 +47,7 @@ def start(message):
     with open(photo_path, 'rb') as photo:
         bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text, parse_mode='HTML', reply_markup=inline_keyboard)
 
-
+image_path_katalog = 'Group_4.png'
 # Команда для отображения списка номеров
 @bot.message_handler(commands=['list'])
 def list_numbers(message):
@@ -68,7 +68,9 @@ def list_numbers(message):
     back_button = types.InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_menu")
     keyboard.add(back_button)
 
-    bot.send_message(message.chat.id, "Выберите номер для аренды:", reply_markup=keyboard)
+    #bot.send_message(message.chat.id, "Выберите номер для аренды:", reply_markup=keyboard)
+    with open(image_path_katalog, 'rb') as photo:
+        bot.send_photo(message.chat.id, photo, caption="Выберите номер для аренды:", reply_markup=keyboard)
 
 # Обработка нажатий кнопок
 @bot.callback_query_handler(func=lambda call: True)
